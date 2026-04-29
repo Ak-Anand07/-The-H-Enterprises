@@ -37,6 +37,7 @@
   "scripts": {
     "dev": "nodemon",
     "compile": "tsc --incremental",
+    "build": "npm run compile",
     "start": "node dist/",
     "prettier": "npx prettier \"**/*.ts\" --write",
     "mocha": "cross-env NODE_ENV=test node -r ./node_modules/ts-node/register ../../node_modules/mocha/bin/mocha.js test/ --recursive --extension .ts --exit",
