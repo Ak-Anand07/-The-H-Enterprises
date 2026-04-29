@@ -43,7 +43,7 @@
     "mocha": "cross-env NODE_ENV=test node -r ./node_modules/ts-node/register ../../node_modules/mocha/bin/mocha.js test/ --recursive --extension .ts --exit",
     "test": "cross-env NODE_ENV=test npm run migrate && npm run mocha",
     "bundle:client": "npm run compile && npm pack --pack-destination ./public",
-    "migrate": "knex migrate:latest",
+    "migrate": "knex migrate:latest --knexfile knexfile.ts",
     "migrate:make": "knex migrate:make",
     "seed": "ts-node src/seed.ts"
   },
@@ -70,7 +70,9 @@
     "sqlite3": "^6.0.1",
     "winston": "^3.18.3",
     "@types/nodemailer": "^8.0.0",
-    "@types/node": "^25.5.0"
+    "@types/node": "^25.5.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
   },
   "devDependencies": {
     "@feathersjs/cli": "^5.0.44",
@@ -82,8 +84,6 @@
     "mocha": "^11.7.5",
     "nodemon": "^3.1.14",
     "prettier": "^3.8.2",
-    "shx": "^0.4.0",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "shx": "^0.4.0"
   }
 }
