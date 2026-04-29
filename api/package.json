@@ -68,15 +68,15 @@
     "mysql2": "^3.22.3",
     "nodemailer": "^8.0.5",
     "sqlite3": "^6.0.1",
-    "winston": "^3.18.3"
+    "winston": "^3.18.3",
+    "@types/nodemailer": "^8.0.0",
+    "@types/node": "^25.5.0"
   },
   "devDependencies": {
     "@feathersjs/cli": "^5.0.44",
     "@feathersjs/rest-client": "^5.0.44",
     "@types/bcryptjs": "^2.4.6",
     "@types/mocha": "^10.0.10",
-    "@types/node": "^25.5.0",
-    "@types/nodemailer": "^8.0.0",
     "axios": "^1.14.0",
     "cross-env": "^10.1.0",
     "mocha": "^11.7.5",
