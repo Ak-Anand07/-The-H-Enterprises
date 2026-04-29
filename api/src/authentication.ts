@@ -108,5 +108,4 @@ export const authentication = (app: Application) => {
   authentication.register('google', new GoogleStrategy())
 
   app.use('authentication', authentication)
-  app.configure(oauth())
 }

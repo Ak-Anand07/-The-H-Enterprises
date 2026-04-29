@@ -3,6 +3,7 @@ import { feathers } from '@feathersjs/feathers'
 import configuration from '@feathersjs/configuration'
 import { koa, rest, bodyParser, errorHandler, parseAuthentication, cors, serveStatic } from '@feathersjs/koa'
 import socketio from '@feathersjs/socketio'
+import { oauth } from '@feathersjs/authentication-oauth'
 
 import { configurationValidator } from './configuration'
 import type { Application } from './declarations'
@@ -46,6 +47,7 @@ app.configure(
 )
 app.configure(mysql)
 app.configure(authentication)
+app.configure(oauth())
 app.configure(services)
 app.configure(channels)
 
