@@ -10,18 +10,8 @@ export const configurationSchema = Type.Intersect([
     port: Type.Number(),
     public: Type.String(),
     origins: Type.Union([Type.Array(Type.String()), Type.String()]),
-    authentication: Type.Object({
-      secret: Type.String(),
-      oauth: Type.Object({
-        redirect: Type.String(),
-        origins: Type.Union([Type.Array(Type.String()), Type.String()]),
-        google: Type.Object({
-          key: Type.String(),
-          secret: Type.String()
-        })
-      })
-    }),
-    mysql: Type.Any()
+    mysql: Type.Any(),
+    authentication: Type.Any() // Using Type.Any here avoids the "excessively deep" error while still allowing the values
   })
 ])
 
