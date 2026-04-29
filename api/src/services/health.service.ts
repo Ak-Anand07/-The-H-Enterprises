@@ -1,7 +1,7 @@
 import type { Params } from '@feathersjs/feathers'
 
 class HealthService {
-  async get(_id: null, _params?: Params) {
+  async find(_params?: Params) {
     return {
       status: 'ok',
       service: 'api',
