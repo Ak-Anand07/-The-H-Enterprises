@@ -36,8 +36,8 @@ export const sendEmail = async (options: SendEmailOptions): Promise<SendEmailRes
         pass: config.gmailAppPassword
       },
       connectionTimeout: 15000,
-      family: 4 // Force IPv4 to avoid ENETUNREACH errors
-    })
+      family: 4
+    } as any)
 
     try {
       const info = await transporter.sendMail({
