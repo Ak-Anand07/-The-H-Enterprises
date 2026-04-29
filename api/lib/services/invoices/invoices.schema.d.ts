@@ -1,0 +1,104 @@
+import type { Static } from '@feathersjs/typebox';
+import type { HookContext } from '../../declarations';
+export declare const invoiceSchema: import("@sinclair/typebox").TObject<{
+    id: import("@sinclair/typebox").TNumber;
+    invoiceNo: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString<string>>;
+    companyId: import("@sinclair/typebox").TNumber;
+    companyName: import("@sinclair/typebox").TString<string>;
+    companyInitial: import("@sinclair/typebox").TString<string>;
+    date: import("@sinclair/typebox").TString<string>;
+    amount: import("@sinclair/typebox").TString<string>;
+    status: import("@sinclair/typebox").TString<string>;
+}>;
+export type Invoice = Static<typeof invoiceSchema>;
+export declare const invoiceValidator: import("@feathersjs/schema").Validator<any, any>;
+export declare const invoiceResolver: import("@feathersjs/schema").Resolver<{
+    invoiceNo?: string | undefined;
+    date: string;
+    id: number;
+    status: string;
+    companyId: number;
+    companyName: string;
+    companyInitial: string;
+    amount: string;
+}, HookContext>;
+export declare const invoiceExternalResolver: import("@feathersjs/schema").Resolver<{
+    invoiceNo?: string | undefined;
+    date: string;
+    id: number;
+    status: string;
+    companyId: number;
+    companyName: string;
+    companyInitial: string;
+    amount: string;
+}, HookContext>;
+export declare const invoiceDataSchema: import("@sinclair/typebox").TObject<{
+    invoiceNo: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString<string>>;
+    companyId: import("@sinclair/typebox").TNumber;
+    companyName: import("@sinclair/typebox").TString<string>;
+    companyInitial: import("@sinclair/typebox").TString<string>;
+    date: import("@sinclair/typebox").TString<string>;
+    amount: import("@sinclair/typebox").TString<string>;
+    status: import("@sinclair/typebox").TString<string>;
+}>;
+export type InvoiceData = Static<typeof invoiceDataSchema>;
+export declare const invoiceDataValidator: import("@feathersjs/schema").Validator<any, any>;
+export declare const invoiceDataResolver: import("@feathersjs/schema").Resolver<{
+    invoiceNo?: string | undefined;
+    date: string;
+    status: string;
+    companyId: number;
+    companyName: string;
+    companyInitial: string;
+    amount: string;
+}, HookContext>;
+export declare const invoicePatchSchema: import("@sinclair/typebox").TPartial<import("@sinclair/typebox").TObject<{
+    invoiceNo: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString<string>>;
+    companyId: import("@sinclair/typebox").TNumber;
+    companyName: import("@sinclair/typebox").TString<string>;
+    companyInitial: import("@sinclair/typebox").TString<string>;
+    date: import("@sinclair/typebox").TString<string>;
+    amount: import("@sinclair/typebox").TString<string>;
+    status: import("@sinclair/typebox").TString<string>;
+}>>;
+export type InvoicePatch = Static<typeof invoicePatchSchema>;
+export declare const invoicePatchValidator: import("@feathersjs/schema").Validator<any, any>;
+export declare const invoicePatchResolver: import("@feathersjs/schema").Resolver<Partial<{
+    invoiceNo?: string | undefined;
+    date: string;
+    status: string;
+    companyId: number;
+    companyName: string;
+    companyInitial: string;
+    amount: string;
+}>, HookContext>;
+export declare const invoiceQuerySchema: import("@sinclair/typebox").TObject<{
+    id: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TNumber>;
+    invoiceNo: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString<string>>;
+    companyId: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TNumber>;
+    companyName: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString<string>>;
+    companyInitial: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString<string>>;
+    date: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString<string>>;
+    amount: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString<string>>;
+    status: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TString<string>>;
+    $limit: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TNumber>;
+    $skip: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TNumber>;
+    $sort: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TObject<{}>>;
+    $select: import("@sinclair/typebox").TOptional<import("@sinclair/typebox").TArray<import("@sinclair/typebox").TString<string>>>;
+}>;
+export type InvoiceQuery = Static<typeof invoiceQuerySchema>;
+export declare const invoiceQueryValidator: import("@feathersjs/schema").Validator<any, any>;
+export declare const invoiceQueryResolver: import("@feathersjs/schema").Resolver<{
+    date?: string | undefined;
+    id?: number | undefined;
+    $limit?: number | undefined;
+    status?: string | undefined;
+    invoiceNo?: string | undefined;
+    companyId?: number | undefined;
+    companyName?: string | undefined;
+    companyInitial?: string | undefined;
+    amount?: string | undefined;
+    $skip?: number | undefined;
+    $sort?: {} | undefined;
+    $select?: string[] | undefined;
+}, HookContext>;
