@@ -28,11 +28,14 @@ export const sendEmail = async (options: SendEmailOptions): Promise<SendEmailRes
 
   if (config.gmailUser && config.gmailAppPassword && config.from) {
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true, // use SSL
       auth: {
         user: config.gmailUser,
         pass: config.gmailAppPassword
-      }
+      },
+      connectionTimeout: 10000 // 10 seconds
     })
 
     try {
