@@ -1,0 +1,62 @@
+{
+  "host": "localhost",
+  "port": 3032,
+  "public": "./public/",
+  "origins": [
+    "http://localhost:3030",
+    "http://localhost:3000",
+    "http://localhost:3001"
+  ],
+  "paginate": {
+    "default": 10,
+    "max": 50
+  },
+  "mysql": {
+    "client": "mysql2",
+    "connection": {
+      "host": "localhost",
+      "user": "root",
+      "password": "",
+      "database": "lumina_db",
+      "port": 3306
+    }
+  },
+  "authentication": {
+    "entity": "user",
+    "service": "users",
+    "secret": "JpG5bZ7V8u1Xw3YqRnA9eTcMfDkH4vLs",
+    "authStrategies": [
+      "jwt",
+      "local"
+    ],
+    "oauth": {
+      "redirect": "http://localhost:3000/dashboard",
+      "origins": [
+        "http://localhost:3000",
+        "http://localhost:3001"
+      ],
+      "google": {
+        "key": "GOOGLE_CLIENT_ID",
+        "secret": "GOOGLE_CLIENT_SECRET",
+        "scope": [
+          "openid",
+          "email",
+          "profile"
+        ]
+      }
+    },
+    "jwtOptions": {
+      "header": {
+        "typ": "access"
+      },
+      "audience": "https://yourdomain.com",
+      "issuer": "feathers",
+      "algorithm": "HS256",
+      "expiresIn": "1d"
+    },
+    "local": {
+      "usernameField": "email",
+      "passwordField": "password"
+    }
+  }
+}

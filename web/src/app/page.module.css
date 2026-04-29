@@ -1,0 +1,198 @@
+.page {
+  --background: linear-gradient(180deg, #fff6eb 0%, #f4f8ff 100%);
+  --foreground: rgba(255, 255, 255, 0.78);
+  --text-primary: #182033;
+  --text-secondary: #4c5973;
+  --accent: #d95f36;
+  --accent-hover: #bd4d27;
+  --card-border: rgba(24, 32, 51, 0.1);
+  --button-secondary-hover: rgba(24, 32, 51, 0.06);
+  --button-secondary-border: rgba(24, 32, 51, 0.12);
+
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-geist-sans);
+  background: var(--background);
+  padding: 24px;
+}
+
+.main {
+  display: flex;
+  width: 100%;
+  max-width: 960px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 32px;
+  justify-content: space-between;
+  background-color: var(--foreground);
+  border: 1px solid var(--card-border);
+  border-radius: 32px;
+  box-shadow: 0 24px 80px rgba(51, 64, 94, 0.12);
+  padding: 72px 60px;
+  backdrop-filter: blur(18px);
+}
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+  gap: 24px;
+}
+
+.intro h1 {
+  max-width: 320px;
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 48px;
+  letter-spacing: -2.4px;
+  text-wrap: balance;
+  color: var(--text-primary);
+}
+
+.eyebrow {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.intro p {
+  max-width: 620px;
+  font-size: 18px;
+  line-height: 32px;
+  text-wrap: balance;
+  color: var(--text-secondary);
+}
+
+.statusCard {
+  width: 100%;
+  padding: 28px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid var(--card-border);
+}
+
+.statusLabel {
+  margin-bottom: 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.statusCard h2 {
+  margin-bottom: 12px;
+  font-size: 28px;
+  color: var(--text-primary);
+}
+
+.statusText {
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+.statusMeta {
+  margin-top: 12px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.statusError {
+  margin-top: 12px;
+  color: #a33f2f;
+  font-size: 14px;
+}
+
+.ctas {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  max-width: 520px;
+  gap: 16px;
+  font-size: 14px;
+  flex-wrap: wrap;
+}
+
+.ctas a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 128px;
+  border: 1px solid transparent;
+  transition: 0.2s;
+  cursor: pointer;
+  width: fit-content;
+  font-weight: 500;
+}
+
+a.primary {
+  background: var(--accent);
+  color: #fff8f2;
+  gap: 8px;
+}
+
+a.secondary {
+  border-color: var(--button-secondary-border);
+  color: var(--text-primary);
+}
+
+/* Enable hover only on non-touch devices */
+@media (hover: hover) and (pointer: fine) {
+  a.primary:hover {
+    background: var(--accent-hover);
+    border-color: transparent;
+  }
+
+  a.secondary:hover {
+    background: var(--button-secondary-hover);
+    border-color: transparent;
+  }
+}
+
+@media (max-width: 600px) {
+  .main {
+    padding: 40px 24px;
+    border-radius: 24px;
+  }
+
+  .intro {
+    gap: 16px;
+  }
+
+  .intro h1 {
+    font-size: 32px;
+    line-height: 40px;
+    letter-spacing: -1.92px;
+  }
+
+  .intro p {
+    font-size: 16px;
+    line-height: 28px;
+  }
+
+  .statusCard {
+    padding: 22px;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .page {
+    --background: linear-gradient(180deg, #141a24 0%, #10141d 100%);
+    --foreground: rgba(17, 20, 29, 0.88);
+    --text-primary: #f4efe7;
+    --text-secondary: #b2bbcc;
+    --accent: #f08a5d;
+    --accent-hover: #ff9a6f;
+    --card-border: rgba(255, 255, 255, 0.08);
+    --button-secondary-hover: rgba(255, 255, 255, 0.06);
+    --button-secondary-border: rgba(255, 255, 255, 0.1);
+  }
+}

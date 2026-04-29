@@ -1,0 +1,29 @@
+{
+  "port": {
+    "__name": "PORT",
+    "__format": "number"
+  },
+  "host": "HOSTNAME",
+  "authentication": {
+    "secret": "FEATHERS_SECRET",
+    "oauth": {
+      "google": {
+        "key": "GOOGLE_CLIENT_ID",
+        "secret": "GOOGLE_CLIENT_SECRET"
+      }
+    }
+  },
+  "mysql": {
+    "connection": {
+      "host": "MYSQL_HOST",
+      "user": "MYSQL_USER",
+      "password": "MYSQL_PASSWORD",
+      "database": "MYSQL_DATABASE",
+      "port": {
+        "__name": "MYSQL_PORT",
+        "__format": "number"
+      }
+    }
+  },
+  "origins": "CORS_ORIGINS"
+}

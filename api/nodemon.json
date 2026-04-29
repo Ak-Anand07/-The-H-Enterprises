@@ -1,0 +1,6 @@
+{
+  "watch": ["src"],
+  "ext": "ts",
+  "ignore": ["dist", "lib", "public", "test", "api.sqlite", "*.log"],
+  "exec": "node -r ts-node/register/transpile-only ./src/index.ts"
+}

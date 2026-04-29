@@ -1,0 +1,88 @@
+{
+  "name": "api",
+  "description": "FeathersJS backend",
+  "version": "0.0.0",
+  "homepage": "",
+  "private": true,
+  "keywords": [
+    "feathers"
+  ],
+  "author": {},
+  "contributors": [],
+  "bugs": {},
+  "engines": {
+    "node": ">= 22.19.0"
+  },
+  "feathers": {
+    "language": "ts",
+    "packager": "npm",
+    "database": "mysql",
+    "framework": "koa",
+    "transports": [
+      "rest",
+      "websockets"
+    ],
+    "schema": "typebox"
+  },
+  "directories": {
+    "lib": "dist",
+    "test": "test"
+  },
+  "files": [
+    "dist/client.js",
+    "dist/**/*.d.ts",
+    "dist/**/*.shared.js"
+  ],
+  "main": "dist/client",
+  "scripts": {
+    "dev": "nodemon",
+    "compile": "tsc --incremental",
+    "start": "node dist/",
+    "prettier": "npx prettier \"**/*.ts\" --write",
+    "mocha": "cross-env NODE_ENV=test node -r ./node_modules/ts-node/register ../../node_modules/mocha/bin/mocha.js test/ --recursive --extension .ts --exit",
+    "test": "cross-env NODE_ENV=test npm run migrate && npm run mocha",
+    "bundle:client": "npm run compile && npm pack --pack-destination ./public",
+    "migrate": "knex migrate:latest",
+    "migrate:make": "knex migrate:make",
+    "seed": "ts-node src/seed.ts"
+  },
+  "dependencies": {
+    "@feathersjs/adapter-commons": "^5.0.44",
+    "@feathersjs/authentication": "^5.0.44",
+    "@feathersjs/authentication-client": "^5.0.44",
+    "@feathersjs/authentication-local": "^5.0.44",
+    "@feathersjs/authentication-oauth": "^5.0.44",
+    "@feathersjs/configuration": "^5.0.44",
+    "@feathersjs/errors": "^5.0.44",
+    "@feathersjs/feathers": "^5.0.44",
+    "@feathersjs/knex": "^5.0.44",
+    "@feathersjs/koa": "^5.0.44",
+    "@feathersjs/schema": "^5.0.44",
+    "@feathersjs/socketio": "^5.0.44",
+    "@feathersjs/transport-commons": "^5.0.44",
+    "@feathersjs/typebox": "^5.0.44",
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^17.4.2",
+    "knex": "^3.2.8",
+    "mysql2": "^3.22.3",
+    "nodemailer": "^8.0.5",
+    "sqlite3": "^6.0.1",
+    "winston": "^3.18.3"
+  },
+  "devDependencies": {
+    "@feathersjs/cli": "^5.0.44",
+    "@feathersjs/rest-client": "^5.0.44",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^25.5.0",
+    "@types/nodemailer": "^8.0.0",
+    "axios": "^1.14.0",
+    "cross-env": "^10.1.0",
+    "mocha": "^11.7.5",
+    "nodemon": "^3.1.14",
+    "prettier": "^3.8.2",
+    "shx": "^0.4.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
