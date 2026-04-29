@@ -35,7 +35,8 @@ export const sendEmail = async (options: SendEmailOptions): Promise<SendEmailRes
         user: config.gmailUser,
         pass: config.gmailAppPassword
       },
-      connectionTimeout: 15000 // 15 seconds
+      connectionTimeout: 15000,
+      family: 4 // Force IPv4 to avoid ENETUNREACH errors
     })
 
     try {
