@@ -4,9 +4,12 @@
     "__format": "number"
   },
   "host": "HOSTNAME",
+  "origins": "CORS_ORIGINS",
   "authentication": {
     "secret": "FEATHERS_SECRET",
     "oauth": {
+      "redirect": "OAUTH_REDIRECT_URL",
+      "origins": "OAUTH_ORIGINS",
       "google": {
         "key": "GOOGLE_CLIENT_ID",
         "secret": "GOOGLE_CLIENT_SECRET"
