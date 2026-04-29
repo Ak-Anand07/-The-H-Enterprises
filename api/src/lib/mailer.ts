@@ -35,19 +35,25 @@ export const sendEmail = async (options: SendEmailOptions): Promise<SendEmailRes
       }
     })
 
-    const info = await transporter.sendMail({
-      from: config.from,
-      to: options.to,
-      replyTo: config.replyTo || undefined,
-      subject: options.subject,
-      html: options.html,
-      text: options.text
-    })
+    try {
+      const info = await transporter.sendMail({
+        from: config.from,
+        to: options.to,
+        replyTo: config.replyTo || undefined,
+        subject: options.subject,
+        html: options.html,
+        text: options.text
+      })
 
-    return {
-      mocked: false,
-      messageId: info.messageId,
-      provider: 'gmail'
+      return {
+        mocked: false,
+        messageId: info.messageId,
+        provider: 'gmail'
+      }
+    } catch (error: any) {
+      logger.error('Gmail SMTP Error: %s', error.message)
+      if (error.response) logger.error('Gmail Response: %s', error.response)
+      throw error
     }
   }
 
