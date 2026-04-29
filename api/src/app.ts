@@ -14,6 +14,7 @@ import { services } from './services/index'
 import { channels } from './channels'
 
 const app: Application = koa(feathers())
+app.proxy = true // Trust the headers from Render proxy
 
 // Load our app configuration (see config/ folder)
 app.configure(configuration(configurationValidator))
