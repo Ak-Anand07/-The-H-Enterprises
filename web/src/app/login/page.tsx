@@ -26,7 +26,7 @@ export default function LoginPage() {
 
   const handleGoogleLogin = () => {
     const apiUrl = app.get("host") || process.env.NEXT_PUBLIC_API_URL || "http://localhost:3032";
-    window.location.href = `${String(apiUrl).replace(/\/$/, "")}/oauth/google?redirect=/dashboard`;
+    window.location.href = `${String(apiUrl).replace(/\/$/, "")}/oauth/google`;
   };
 
   return (
