@@ -11,7 +11,16 @@ declare module './declarations' {
 
 export const mysql = (app: Application) => {
   const config = app.get('mysql')
-  const db = knex(config!)
+  
+  // If SSL is required (common for Aiven/Cloud DBs), add the necessary Knex configuration
+  if (process.env.MYSQL_SSL === 'true') {
+    if (config && config.connection) {
+      (config.connection as any).ssl = {
+        rejectUnauthorized: false // Set to false to allow Aiven's self-signed CA without manual certificate upload
+      }
+    }
+  }
 
+  const db = knex(config!)
   app.set('mysqlClient', db)
 }
