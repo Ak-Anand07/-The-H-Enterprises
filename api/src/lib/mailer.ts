@@ -11,11 +11,12 @@ interface SendEmailOptions {
 interface SendEmailResult {
   mocked: boolean
   messageId?: string
-  provider?: 'gmail' | 'resend' | 'mock'
+  provider?: 'gmail' | 'resend' | 'sendgrid' | 'mock'
 }
 
 const getMailConfig = () => ({
-  apiKey: process.env.RESEND_API_KEY,
+  resendKey: process.env.RESEND_API_KEY,
+  sendgridKey: process.env.SENDGRID_API_KEY,
   from: process.env.MAIL_FROM,
   replyTo: process.env.MAIL_REPLY_TO,
   gmailUser: process.env.GMAIL_SMTP_USER,
@@ -25,20 +26,45 @@ const getMailConfig = () => ({
 export const sendEmail = async (options: SendEmailOptions): Promise<SendEmailResult> => {
   const config = getMailConfig()
 
-  // Diagnostic Logs (Helpful for debugging)
-  logger.info('Email Config Check: RESEND_API_KEY=%s, MAIL_FROM=%s, GMAIL_USER=%s', 
-    config.apiKey ? 'FOUND' : 'MISSING',
-    config.from ? 'FOUND' : 'MISSING',
-    config.gmailUser ? 'FOUND' : 'MISSING'
-  )
+  // 1. Try SendGrid (HTTP API - Best for personal emails on Render)
+  if (config.sendgridKey && config.from) {
+    try {
+      const response = await fetch('https://api.sendgrid.com/v3/mail/send', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${config.sendgridKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          personalizations: [{ to: [{ email: options.to }] }],
+          from: { email: config.from.includes('<') ? config.from.split('<')[1].split('>')[0].trim() : config.from },
+          reply_to: config.replyTo ? { email: config.replyTo } : undefined,
+          subject: options.subject,
+          content: [
+            { type: 'text/plain', value: options.text },
+            { type: 'text/html', value: options.html }
+          ]
+        })
+      })
 
-  // 1. Prefer Resend (HTTP API - Not blocked by Render)
-  if (config.apiKey && config.from) {
+      if (response.ok) {
+        return { mocked: false, provider: 'sendgrid' }
+      } else {
+        const err = await response.json()
+        logger.error('SendGrid Error: %j', err)
+      }
+    } catch (error: any) {
+      logger.error('Failed to send via SendGrid: %s', error.message)
+    }
+  }
+
+  // 2. Try Resend (HTTP API)
+  if (config.resendKey && config.from) {
     try {
       const response = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${config.apiKey}`,
+          Authorization: `Bearer ${config.resendKey}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -53,33 +79,22 @@ export const sendEmail = async (options: SendEmailOptions): Promise<SendEmailRes
 
       const payload = (await response.json().catch(() => ({}))) as { id?: string; message?: string }
 
-      if (!response.ok) {
-        logger.error('Resend API Error: %s', payload.message || response.statusText)
-        throw new Error(payload.message || `Resend request failed with status ${response.status}.`)
-      }
-
-      return {
-        mocked: false,
-        messageId: payload.id,
-        provider: 'resend'
+      if (response.ok) {
+        return { mocked: false, messageId: payload.id, provider: 'resend' }
       }
     } catch (error: any) {
-      logger.error('Failed to send email via Resend: %s', error.message)
-      // Fall through to other methods if Resend fails
+      logger.error('Failed to send via Resend: %s', error.message)
     }
   }
 
-  // 2. Fallback to Gmail (SMTP - Usually blocked on Render Free Tier)
+  // 3. Fallback to Gmail (SMTP - Blocks on Render)
   if (config.gmailUser && config.gmailAppPassword && config.from) {
     const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 587,
       secure: false,
-      auth: {
-        user: config.gmailUser,
-        pass: config.gmailAppPassword
-      },
-      connectionTimeout: 15000,
+      auth: { user: config.gmailUser, pass: config.gmailAppPassword },
+      connectionTimeout: 10000,
       family: 4
     } as any)
 
@@ -87,29 +102,17 @@ export const sendEmail = async (options: SendEmailOptions): Promise<SendEmailRes
       const info = await transporter.sendMail({
         from: config.from,
         to: options.to,
-        replyTo: config.replyTo || undefined,
         subject: options.subject,
         html: options.html,
         text: options.text
       })
-
-      return {
-        mocked: false,
-        messageId: info.messageId,
-        provider: 'gmail'
-      }
+      return { mocked: false, messageId: info.messageId, provider: 'gmail' }
     } catch (error: any) {
       logger.error('Gmail SMTP Error: %s', error.message)
     }
   }
 
-  // 3. Final Fallback: Mock Mode
-  logger.info(
-    'Mock email send to %s with subject "%s". (No real email provider configured or reachable)',
-    options.to,
-    options.subject
-  )
-
+  logger.info('Mock email send to %s with subject "%s"', options.to, options.subject)
   return { mocked: true, provider: 'mock' }
 }
 
@@ -196,12 +199,10 @@ export const sendCollectionReminderEmail = async ({
   const subject = hasOverdueInvoices
     ? `Urgent payment reminder for ${companyName}`
     : `Payment reminder for ${companyName}`
-  
   const invoiceLines = invoices.map((invoice) => {
     const reference = invoice.invoiceNo?.trim() || `Record #${invoice.id}`
     return `- ${reference} | ${invoice.date} | ${invoice.amount} | ${invoice.status}`
   })
-
   const invoiceRows = invoices
     .map((invoice) => {
       const reference = escapeHtml(invoice.invoiceNo?.trim() || `Record #${invoice.id}`)
