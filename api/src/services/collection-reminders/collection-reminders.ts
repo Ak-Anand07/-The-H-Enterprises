@@ -24,7 +24,7 @@ type CollectionReminderResult = {
   totalOutstanding: string
   notificationStatus: 'sent' | 'mocked' | 'skipped' | 'failed'
   notificationMessage: string
-  provider?: 'gmail' | 'resend' | 'mock'
+  provider?: 'gmail' | 'resend' | 'sendgrid' | 'mock'
   messageId?: string
 }
 
