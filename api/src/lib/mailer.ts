@@ -1,5 +1,4 @@
 import nodemailer from 'nodemailer'
-
 import { logger } from '../logger'
 
 interface SendEmailOptions {
@@ -26,11 +25,49 @@ const getMailConfig = () => ({
 export const sendEmail = async (options: SendEmailOptions): Promise<SendEmailResult> => {
   const config = getMailConfig()
 
+  // 1. Prefer Resend (HTTP API - Not blocked by Render)
+  if (config.apiKey && config.from) {
+    try {
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${config.apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          from: config.from,
+          to: [options.to],
+          reply_to: config.replyTo || undefined,
+          subject: options.subject,
+          html: options.html,
+          text: options.text
+        })
+      })
+
+      const payload = (await response.json().catch(() => ({}))) as { id?: string; message?: string }
+
+      if (!response.ok) {
+        logger.error('Resend API Error: %s', payload.message || response.statusText)
+        throw new Error(payload.message || `Resend request failed with status ${response.status}.`)
+      }
+
+      return {
+        mocked: false,
+        messageId: payload.id,
+        provider: 'resend'
+      }
+    } catch (error: any) {
+      logger.error('Failed to send email via Resend: %s', error.message)
+      // Fall through to other methods if Resend fails
+    }
+  }
+
+  // 2. Fallback to Gmail (SMTP - Usually blocked on Render Free Tier)
   if (config.gmailUser && config.gmailAppPassword && config.from) {
     const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 587,
-      secure: false, // use STARTTLS
+      secure: false,
       auth: {
         user: config.gmailUser,
         pass: config.gmailAppPassword
@@ -56,48 +93,17 @@ export const sendEmail = async (options: SendEmailOptions): Promise<SendEmailRes
       }
     } catch (error: any) {
       logger.error('Gmail SMTP Error: %s', error.message)
-      if (error.response) logger.error('Gmail Response: %s', error.response)
-      throw error
     }
   }
 
-  if (!config.apiKey || !config.from) {
-    logger.info(
-      'Mock email send to %s with subject "%s". Configure Gmail SMTP or Resend mail env vars for real delivery.',
-      options.to,
-      options.subject
-    )
+  // 3. Final Fallback: Mock Mode
+  logger.info(
+    'Mock email send to %s with subject "%s". (No real email provider configured or reachable)',
+    options.to,
+    options.subject
+  )
 
-    return { mocked: true, provider: 'mock' }
-  }
-
-  const response = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${config.apiKey}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      from: config.from,
-      to: [options.to],
-      reply_to: config.replyTo || undefined,
-      subject: options.subject,
-      html: options.html,
-      text: options.text
-    })
-  })
-
-  const payload = (await response.json().catch(() => ({}))) as { id?: string; message?: string }
-
-  if (!response.ok) {
-    throw new Error(payload.message || `Resend request failed with status ${response.status}.`)
-  }
-
-  return {
-    mocked: false,
-    messageId: payload.id,
-    provider: 'resend'
-  }
+  return { mocked: true, provider: 'mock' }
 }
 
 interface CompanyNotificationOptions {
@@ -153,7 +159,7 @@ export const sendCompanyOnboardingEmail = async ({
       'You can now continue with invoice creation and contact setup.',
       '',
       'Regards,',
-      'Ledger Suite'
+      'The H Enterprises'
     ].join('\n'),
     html: `
       <div style="font-family: Arial, sans-serif; color: #1f2937; line-height: 1.6;">
@@ -183,10 +189,12 @@ export const sendCollectionReminderEmail = async ({
   const subject = hasOverdueInvoices
     ? `Urgent payment reminder for ${companyName}`
     : `Payment reminder for ${companyName}`
+  
   const invoiceLines = invoices.map((invoice) => {
     const reference = invoice.invoiceNo?.trim() || `Record #${invoice.id}`
     return `- ${reference} | ${invoice.date} | ${invoice.amount} | ${invoice.status}`
   })
+
   const invoiceRows = invoices
     .map((invoice) => {
       const reference = escapeHtml(invoice.invoiceNo?.trim() || `Record #${invoice.id}`)
