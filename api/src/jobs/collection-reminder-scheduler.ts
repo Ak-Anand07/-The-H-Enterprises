@@ -12,7 +12,7 @@ type ReminderHistoryRecord = {
   invoiceCount: number
   totalOutstanding: string
   notificationStatus: 'sent' | 'mocked' | 'skipped' | 'failed'
-  provider?: 'gmail' | 'resend' | 'mock'
+  provider?: 'gmail' | 'resend' | 'sendgrid' | 'mock'
   messageId?: string
   notificationMessage: string
   createdAt: string
