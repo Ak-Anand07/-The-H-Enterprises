@@ -25,6 +25,13 @@ const getMailConfig = () => ({
 export const sendEmail = async (options: SendEmailOptions): Promise<SendEmailResult> => {
   const config = getMailConfig()
 
+  // Diagnostic Logs (Helpful for debugging)
+  logger.info('Email Config Check: RESEND_API_KEY=%s, MAIL_FROM=%s, GMAIL_USER=%s', 
+    config.apiKey ? 'FOUND' : 'MISSING',
+    config.from ? 'FOUND' : 'MISSING',
+    config.gmailUser ? 'FOUND' : 'MISSING'
+  )
+
   // 1. Prefer Resend (HTTP API - Not blocked by Render)
   if (config.apiKey && config.from) {
     try {
