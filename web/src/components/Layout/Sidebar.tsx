@@ -34,7 +34,7 @@ export function Sidebar({ collapsed, isOpen, onClose, onMouseEnter, onMouseLeave
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex h-screen flex-col overflow-hidden bg-slate-950/95 py-6 transition-all duration-200 backdrop-blur-md lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex h-screen flex-col overflow-y-auto bg-slate-950/95 pb-6 pt-4 transition-all duration-200 backdrop-blur-md lg:translate-x-0 ${
           isOpen ? "translate-x-0 w-72 shadow-2xl" : "-translate-x-full lg:translate-x-0"
         } ${collapsed ? "shadow-none" : "lg:shadow-[20px_0_50px_rgba(0,0,0,0.3)]"}`}
         style={{ width: isOpen ? "280px" : `${width}px` }}
@@ -48,7 +48,7 @@ export function Sidebar({ collapsed, isOpen, onClose, onMouseEnter, onMouseLeave
         <div className="absolute right-1 top-1/3 h-44 w-[2px] rounded-full bg-white/15"></div>
       </div>
 
-      <div className="relative mb-8 px-6 overflow-hidden">
+      <div className="relative mb-6 px-6 pt-2 overflow-hidden">
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-primary">
             <span className="material-symbols-outlined">domain</span>
@@ -64,7 +64,7 @@ export function Sidebar({ collapsed, isOpen, onClose, onMouseEnter, onMouseLeave
         </div>
       </div>
 
-      <nav className="relative flex flex-1 flex-col gap-1 px-4 overflow-hidden">
+      <nav className="relative flex flex-1 flex-col gap-1 px-4">
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           const stateClass = isActive
