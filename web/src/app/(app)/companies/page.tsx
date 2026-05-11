@@ -43,7 +43,7 @@ export default function CompaniesPage() {
   const [formData, setFormData] = useState({
     name: "",
     gstNumber: "",
-    invoiceType: "Final Invoice",
+    invoiceType: "Percentage",
     address: "",
     city: "",
     contactName: "",
@@ -86,7 +86,7 @@ export default function CompaniesPage() {
     setFormData({
       name: "",
       gstNumber: "",
-      invoiceType: "Final Invoice",
+      invoiceType: "Percentage",
       address: "",
       city: "",
       contactName: "",
@@ -104,7 +104,7 @@ export default function CompaniesPage() {
     setFormData({
       name: "",
       gstNumber: "",
-      invoiceType: "Final Invoice",
+      invoiceType: "Percentage",
       address: "",
       city: "",
       contactName: "",
@@ -122,7 +122,7 @@ export default function CompaniesPage() {
     setFormData({
       name: company.name || "",
       gstNumber: company.gstNumber || "",
-      invoiceType: company.invoiceType || "Final Invoice",
+      invoiceType: company.invoiceType || "Percentage",
       address: company.address || "",
       city: company.city || "",
       contactName: company.contactName || "",
@@ -338,12 +338,12 @@ export default function CompaniesPage() {
                         <td className="px-4 py-4 border-transparent text-center">
                           <span
                             className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider inline-block ${
-                              co.invoiceType === "Final Invoice"
+                              co.invoiceType === "Percentage"
                                 ? "bg-primary-fixed text-primary"
                                 : "bg-tertiary-fixed text-tertiary"
                             }`}
                           >
-                            {co.invoiceType?.split(" ")[0] || "Unknown"}
+                            {co.invoiceType === "Percentage" ? "% Ratio" : "Flat Fee"}
                           </span>
                         </td>
                         <td className="px-4 py-4 font-mono text-xs whitespace-nowrap border-transparent text-center">
@@ -448,7 +448,7 @@ export default function CompaniesPage() {
                   </div>
                   <div>
                     <label className="block text-[11px] font-bold text-on-surface-variant mb-1 ml-1">
-                      Invoice Type
+                      Settlement Type
                     </label>
                     <select
                       name="invoiceType"
@@ -456,8 +456,8 @@ export default function CompaniesPage() {
                       onChange={handleChange}
                       className="crm-drawer-field w-full p-4 rounded-xl text-sm border-x-0 border-t-0 border-b-2 border-b-slate-400 focus:border-b-primary focus:ring-0 transition-all outline-none appearance-none cursor-pointer"
                     >
-                      <option value="Final Invoice">Final Invoice</option>
-                      <option value="Proforma Invoice">Proforma Invoice</option>
+                      <option value="Percentage">% (Percentage)</option>
+                      <option value="Amount">Amount (Fixed)</option>
                     </select>
                   </div>
                 </div>
@@ -470,7 +470,7 @@ export default function CompaniesPage() {
                     value={formData.margin}
                     onChange={handleChange}
                     className="crm-drawer-field w-full p-4 rounded-xl text-sm border-x-0 border-t-0 border-b-2 border-b-slate-400 focus:border-b-primary focus:ring-0 transition-all outline-none"
-                    placeholder="e.g. 10.0%"
+                    placeholder={formData.invoiceType === "Percentage" ? "e.g. 10.0%" : "e.g. 500"}
                     type="text"
                   />
                 </div>
