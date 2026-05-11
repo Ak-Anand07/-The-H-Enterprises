@@ -1,5 +1,4 @@
 import { jsPDF } from "jspdf";
-import QRCode from "qrcode";
 
 // Fetch an image from a public URL and return a data URL
 async function fetchDataUrl(url: string): Promise<string | null> {
@@ -41,9 +40,8 @@ export const generateInvoicePDF = async (invoice: any, client: any) => {
   const gstAmount = cleanAmount * 0.18;
   const totalAmount = cleanAmount + gstAmount;
 
-  // Assets
-  const upiString = `upi://pay?pa=maxirevota@axisbank&pn=The+H+Enterprises&am=${totalAmount.toFixed(2)}&cu=INR`;
-  const qrDataUrl = await QRCode.toDataURL(upiString, { width: 200, margin: 1 });
+  // Assets — static real UPI QR code
+  const qrDataUrl = await fetchDataUrl("/qr.png");
   const logoDataUrl = await fetchDataUrl("/logo.png");
   const signatureDataUrl = await fetchDataUrl("/signature.png");
 
@@ -167,7 +165,9 @@ export const generateInvoicePDF = async (invoice: any, client: any) => {
   const footerTop = bankY + 5 + bLabels.length * bRowH + 5;
 
   // QR code
-  doc.addImage(qrDataUrl, "PNG", margin, footerTop + 5, 35, 35);
+  if (qrDataUrl) {
+    doc.addImage(qrDataUrl, "PNG", margin, footerTop + 5, 35, 35);
+  }
 
   // "For The H Enterprises" right-aligned
   doc.setFont("helvetica", "bold");
@@ -198,5 +198,5 @@ export const generateInvoicePDF = async (invoice: any, client: any) => {
     pageWidth / 2, pageHeight - 8, { align: "center" }
   );
 
-  return { doc, qrDataUrl, totalAmount, cleanAmount };
+  return { doc, qrDataUrl: qrDataUrl ?? "", totalAmount, cleanAmount };
 };
