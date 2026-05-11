@@ -140,6 +140,16 @@ interface CollectionReminderOptions {
   hasOverdueInvoices: boolean
 }
 
+interface InvoiceNotificationOptions {
+  companyName: string
+  contactName?: string
+  recipientEmail: string
+  invoiceNo: string
+  amount: string
+  date: string
+  dueDate: string
+}
+
 const escapeHtml = (value: string) =>
   value
     .replace(/&/g, '&amp;')
@@ -264,6 +274,73 @@ export const sendCollectionReminderEmail = async ({
         </table>
         <p>Kindly confirm the payment timeline or share an update with our accounts team.</p>
         <p style="margin-top: 24px;">Regards,<br/>The H Enterprises</p>
+      </div>
+    `
+  })
+}
+
+export const sendInvoiceGeneratedEmail = async ({
+  companyName,
+  contactName,
+  recipientEmail,
+  invoiceNo,
+  amount,
+  date,
+  dueDate
+}: InvoiceNotificationOptions) => {
+  const greetingName = contactName?.trim() || 'there'
+
+  return sendEmail({
+    to: recipientEmail,
+    subject: `New Invoice Issued: ${invoiceNo} for ${companyName}`,
+    text: [
+      `Hello ${greetingName},`,
+      '',
+      `A new invoice ${invoiceNo} has been generated for ${companyName}.`,
+      '',
+      `Invoice Details:`,
+      `- Invoice Number: ${invoiceNo}`,
+      `- Amount: ${amount}`,
+      `- Date: ${date}`,
+      `- Due Date: ${dueDate}`,
+      '',
+      'Please find the invoice details in your portal or contact our accounts team for a PDF copy.',
+      '',
+      'Regards,',
+      'The H Enterprises'
+    ].join('\n'),
+    html: `
+      <div style="font-family: Arial, sans-serif; color: #1f2937; line-height: 1.6; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 8px; padding: 24px;">
+        <h2 style="color: #004ac6; margin-top: 0;">Invoice Issued</h2>
+        <p>Hello ${escapeHtml(greetingName)},</p>
+        <p>
+          A new invoice has been generated for <strong>${escapeHtml(companyName)}</strong>.
+        </p>
+        <div style="background: #f8fafc; padding: 20px; border-radius: 6px; margin: 20px 0;">
+          <table style="width: 100%; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 4px 0; color: #64748b;">Invoice Number:</td>
+              <td style="padding: 4px 0; font-weight: bold; text-align: right;">${escapeHtml(invoiceNo)}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px 0; color: #64748b;">Amount:</td>
+              <td style="padding: 4px 0; font-weight: bold; text-align: right; color: #004ac6;">${escapeHtml(amount)}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px 0; color: #64748b;">Issue Date:</td>
+              <td style="padding: 4px 0; text-align: right;">${escapeHtml(date)}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px 0; color: #64748b;">Due Date:</td>
+              <td style="padding: 4px 0; text-align: right;">${escapeHtml(dueDate)}</td>
+            </tr>
+          </table>
+        </div>
+        <p>Please review the details and proceed with the payment as per the terms.</p>
+        <p style="margin-top: 24px; border-top: 1px solid #e5e7eb; padding-top: 16px; font-size: 14px; color: #64748b;">
+          Regards,<br/>
+          <strong>The H Enterprises</strong>
+        </p>
       </div>
     `
   })

@@ -1,4 +1,5 @@
 import { BadRequest, Conflict } from '@feathersjs/errors'
+import { sendInvoiceGeneratedEmail } from '../../lib/mailer'
 
 import type { HookContext } from '../../declarations'
 import type { Company } from '../companies/companies.schema'
@@ -156,6 +157,34 @@ export const prepareInvoiceData = async (context: HookContext) => {
   }
 
   context.data = normalizedData
+
+  return context
+}
+
+export const notifyCompanyOfInvoice = async (context: HookContext) => {
+  const { result } = context
+
+  if (!result || !result.companyId) {
+    return context
+  }
+
+  try {
+    const company = await getCompanyById(context, Number(result.companyId))
+
+    if (company.contactEmail) {
+      await sendInvoiceGeneratedEmail({
+        companyName: company.name,
+        contactName: company.contactName,
+        recipientEmail: company.contactEmail,
+        invoiceNo: result.invoiceNo,
+        amount: result.amount,
+        date: result.date,
+        dueDate: result.dueDate || 'N/A'
+      })
+    }
+  } catch (error) {
+    console.error('Failed to send invoice notification email:', error)
+  }
 
   return context
 }

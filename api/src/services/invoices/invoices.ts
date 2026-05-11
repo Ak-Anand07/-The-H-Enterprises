@@ -13,7 +13,7 @@ import {
 } from './invoices.schema'
 import type { Application } from '../../declarations'
 import { InvoiceService, getOptions } from './invoices.class'
-import { prepareInvoiceData } from './invoices.hooks'
+import { prepareInvoiceData, notifyCompanyOfInvoice } from './invoices.hooks'
 
 export const invoice = (app: Application) => {
   app.use('invoices', new InvoiceService(getOptions(app)), {
@@ -59,7 +59,8 @@ export const invoice = (app: Application) => {
       remove: []
     },
     after: {
-      all: []
+      all: [],
+      create: [notifyCompanyOfInvoice]
     },
     error: {
       all: []
