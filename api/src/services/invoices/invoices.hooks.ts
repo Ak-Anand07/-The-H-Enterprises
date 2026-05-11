@@ -168,10 +168,14 @@ export const notifyCompanyOfInvoice = async (context: HookContext) => {
     return context
   }
 
+  // We run this in a self-contained try/catch block so a mailer failure
+  // doesn't block the actual database record from being created.
   try {
     const company = await getCompanyById(context, Number(result.companyId))
 
-    if (company.contactEmail) {
+    if (company && company.contactEmail) {
+      // Fire and forget (don't necessarily await if you want max speed, 
+      // but awaiting inside this local try/catch is safe)
       await sendInvoiceGeneratedEmail({
         companyName: company.name,
         contactName: company.contactName,
@@ -180,10 +184,13 @@ export const notifyCompanyOfInvoice = async (context: HookContext) => {
         amount: result.amount,
         date: result.date,
         dueDate: result.dueDate || 'N/A'
+      }).catch(mailErr => {
+        console.error('Mailer internal error:', mailErr)
       })
     }
   } catch (error) {
-    console.error('Failed to send invoice notification email:', error)
+    // Log the error but don't rethrow it
+    console.error('Failed to process invoice notification hook:', error)
   }
 
   return context

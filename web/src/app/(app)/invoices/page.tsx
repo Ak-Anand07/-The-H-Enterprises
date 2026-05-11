@@ -148,9 +148,10 @@ export default function InvoicesPage() {
       }
       closeDrawer();
       loadData();
-    } catch (err) {
-      console.error(err);
-      alert("Error saving invoice.");
+    } catch (err: any) {
+      console.error("Save Error:", err);
+      const message = err.message || "Unknown error occurred.";
+      alert(`Action Failed: ${message}`);
     }
   };
 
