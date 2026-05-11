@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -80,8 +80,8 @@ export default function InvoicesPage() {
   const pendingCount = invoices.filter((inv) => inv.status === "Pending").length;
   const overdueCount = invoices.filter((inv) => inv.status === "Overdue").length;
 
-  const formatCurrency = (val: number) =>
-    new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(val);
+  const formatCurrency = (val: number) => 
+    `Rs. ${new Intl.NumberFormat("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(val)}`;
 
   // Drawer Handlers
   const closeDrawer = () => {
@@ -93,7 +93,7 @@ export default function InvoicesPage() {
       companyId: 0,
       date: formatDateInput(new Date()),
       dueDate: formatDateInput(addDays(new Date(), 14)),
-      amount: "â‚¹ 0.00",
+      amount: "Rs. 0.00",
       status: "Pending",
     });
   };
@@ -106,7 +106,7 @@ export default function InvoicesPage() {
       companyId: companies.length > 0 ? companies[0].id : 0,
       date: formatDateInput(new Date()),
       dueDate: formatDateInput(addDays(new Date(), 14)),
-      amount: "â‚¹ 1000.00",
+      amount: "Rs. 1000.00",
       status: "Pending",
     });
     setDrawerOpen(true);
