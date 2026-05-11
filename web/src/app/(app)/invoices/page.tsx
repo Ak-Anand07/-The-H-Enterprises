@@ -274,7 +274,7 @@ export default function InvoicesPage() {
         doc.setFontSize(10);
         bLabels.forEach((label, i) => {
           const y = bankY + 5 + (i * bRowH);
-          doc.setFillColor(245);
+          doc.setFillColor(245, 245, 245);
           doc.rect(margin, y, colWidth * 0.8, bRowH, "FD");
           doc.setFont("helvetica", "normal");
           doc.text(label, margin + 5, y + 4.5);
