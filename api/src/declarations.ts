@@ -10,9 +10,12 @@ export type { NextFunction }
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface Configuration extends ApplicationConfiguration {}
 
+import { invoiceEmailService } from './services/invoice-email/invoice-email.service'
+
 // A mapping of service names to types. Will be extended in service files.
 export interface ServiceTypes {
   health: typeof healthService
+  'invoice-email': typeof invoiceEmailService
 }
 
 // The application instance type that will be used everywhere else

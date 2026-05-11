@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -71,15 +71,15 @@ export default function InvoicesPage() {
   // Metrics Calculations
   const outstandingProformaNum = invoices
     .filter((inv) => inv.status === "Pending" || inv.invoiceNo?.startsWith("PF"))
-    .reduce((sum, inv) => sum + parseFloat(inv.amount.replace(/[^0-9.-]+/g, "") || "0"), 0);
+    .reduce((sum, inv) => sum + parseFloat(inv.amount.replace(/[^\d.]/g, '').replace(/^\.+/, '') || "0"), 0);
   
   const finalizedTotalNum = invoices
     .filter((inv) => inv.status === "Cleared")
-    .reduce((sum, inv) => sum + parseFloat(inv.amount.replace(/[^0-9.-]+/g, "") || "0"), 0);
+    .reduce((sum, inv) => sum + parseFloat(inv.amount.replace(/[^\d.]/g, '').replace(/^\.+/, '') || "0"), 0);
 
   const unpaidOverdueNum = invoices
     .filter((inv) => inv.status === "Overdue")
-    .reduce((sum, inv) => sum + parseFloat(inv.amount.replace(/[^0-9.-]+/g, "") || "0"), 0);
+    .reduce((sum, inv) => sum + parseFloat(inv.amount.replace(/[^\d.]/g, '').replace(/^\.+/, '') || "0"), 0);
 
   const pendingCount = invoices.filter((inv) => inv.status === "Pending").length;
   const overdueCount = invoices.filter((inv) => inv.status === "Overdue").length;
