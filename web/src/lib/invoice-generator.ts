@@ -1,6 +1,22 @@
 import { jsPDF } from "jspdf";
 import QRCode from "qrcode";
 
+// Fetch an image from a public URL and return a data URL
+async function fetchDataUrl(url: string): Promise<string | null> {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.readAsDataURL(blob);
+    });
+  } catch {
+    return null;
+  }
+}
+
 export const generateInvoicePDF = async (invoice: any, client: any) => {
   const yourCompany = {
     name: "The H Enterprises",
@@ -19,97 +35,168 @@ export const generateInvoicePDF = async (invoice: any, client: any) => {
     ifsc: "UTIB0000851",
   };
 
-  const cleanAmount = parseFloat((invoice.amount || "0").replace(/[^0-9.-]+/g, "") || "0");
+  const cleanAmount = parseFloat(
+    String(invoice.amount || "0").replace(/[^0-9.-]+/g, "") || "0"
+  );
   const gstAmount = cleanAmount * 0.18;
   const totalAmount = cleanAmount + gstAmount;
+
+  // Assets
+  const upiString = `upi://pay?pa=maxirevota@axisbank&pn=The+H+Enterprises&am=${totalAmount.toFixed(2)}&cu=INR`;
+  const qrDataUrl = await QRCode.toDataURL(upiString, { width: 200, margin: 1 });
+  const logoDataUrl = await fetchDataUrl("/logo.png");
+  const signatureDataUrl = await fetchDataUrl("/signature.png");
 
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 20;
+  const colWidth = (pageWidth - margin * 2) / 2;
+  const headerFill: [number, number, number] = [235, 241, 245];
 
-  // 1. QR Code Generation
-  const upiString = `upi://pay?pa=maxirevota@axisbank&pn=The+H+Enterprises&am=${totalAmount.toFixed(2)}&cu=INR`;
-  const qrDataUrl = await QRCode.toDataURL(upiString, { width: 200, margin: 1 });
+  // ─── 1. Logo (centered) ───────────────────────────────────────────────────
+  if (logoDataUrl) {
+    doc.addImage(logoDataUrl, "PNG", pageWidth / 2 - 20, 8, 40, 30);
+  }
 
-  // 2. Branding & Header
+  // ─── 2. Title & GST ──────────────────────────────────────────────────────
+  doc.setFontSize(16);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(22);
+  doc.text("Performa Invoice", pageWidth / 2, 45, { align: "center" });
+  doc.setLineWidth(0.5);
+  doc.line(pageWidth / 2 - 28, 47, pageWidth / 2 + 28, 47);
+
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
   doc.setTextColor(0, 0, 0);
-  doc.text("INVOICE", pageWidth - margin, 25, { align: "right" });
+  doc.text(`GSTNo: ${yourCompany.gst}`, pageWidth - margin, 45, { align: "right" });
 
-  doc.setFontSize(14);
-  doc.text(yourCompany.name, margin, 25);
-  doc.setFontSize(9);
-  doc.setFont("helvetica", "normal");
-  doc.text(`GSTIN: ${yourCompany.gst}`, margin, 30);
-  doc.text(yourCompany.address, margin, 35);
-  doc.text(yourCompany.city, margin, 40);
+  // ─── 3. Header Boxes (Client left, Invoice meta right) ────────────────────
+  doc.setDrawColor(0);
 
-  // 3. Invoice Info
-  doc.setDrawColor(200, 200, 200);
-  doc.line(margin, 50, pageWidth - margin, 50);
-
+  // Left box — Client
+  doc.setFillColor(...headerFill);
+  doc.rect(margin, 55, colWidth, 25, "FD");
+  doc.setFontSize(11);
   doc.setFont("helvetica", "bold");
-  doc.text("Bill To:", margin, 60);
+  doc.text(
+    String(invoice.companyName || client.name || "").toUpperCase(),
+    margin + colWidth / 2, 62, { align: "center" }
+  );
   doc.setFont("helvetica", "normal");
-  doc.text(client.name || invoice.companyName || "Client", margin, 65);
-  doc.text(client.address || "N/A", margin, 70);
-  doc.text(`Contact: ${client.contactName || "N/A"}`, margin, 75);
-
+  doc.setFontSize(10);
+  doc.text(
+    String(client.city || "Chennai"),
+    margin + colWidth / 2, 68, { align: "center" }
+  );
   doc.setFont("helvetica", "bold");
-  doc.text("Invoice Details:", pageWidth - 80, 60);
-  doc.setFont("helvetica", "normal");
-  doc.text(`Invoice No: ${invoice.invoiceNo}`, pageWidth - 80, 65);
-  doc.text(`Date: ${invoice.date}`, pageWidth - 80, 70);
-  doc.text(`Due Date: ${invoice.dueDate}`, pageWidth - 80, 75);
+  doc.text(
+    String(client.gstNumber || client.gst || "N/A"),
+    margin + colWidth / 2, 74, { align: "center" }
+  );
 
-  // 4. Table Header
-  const tableTop = 90;
-  doc.setFillColor(245, 245, 245);
-  doc.rect(margin, tableTop, pageWidth - margin * 2, 10, "F");
+  // Right box — Invoice meta
+  doc.setFillColor(...headerFill);
+  doc.rect(margin + colWidth, 55, colWidth, 25, "FD");
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.setTextColor(0, 0, 0);
+  doc.text(`Invoice No   : ${invoice.invoiceNo || "N/A"}`, margin + colWidth + 5, 62);
+  doc.text(`Invoice Date : ${invoice.date || "N/A"}`, margin + colWidth + 5, 68);
+  doc.text(`Due date      : ${invoice.dueDate || "N/A"}`, margin + colWidth + 5, 74);
+
+  // ─── 4. Item Table ────────────────────────────────────────────────────────
+  const startY = 85;
+  const rowH = 8;
+
+  doc.setFont("helvetica", "normal");
+  // Row 1 — Description
+  doc.rect(margin, startY, colWidth * 1.5, rowH);
+  doc.text(
+    invoice.description || "Professional software management fee",
+    margin + 3, startY + 5.5
+  );
+  doc.rect(margin + colWidth * 1.5, startY, colWidth * 0.5, rowH);
+  doc.text(
+    cleanAmount.toFixed(2),
+    margin + colWidth * 2 - 3, startY + 5.5, { align: "right" }
+  );
+
+  // Row 2 — GST 18%
+  doc.rect(margin, startY + rowH, colWidth * 1.5, rowH);
+  doc.text("GST 18%", margin + colWidth * 0.75, startY + rowH + 5.5, { align: "center" });
+  doc.rect(margin + colWidth * 1.5, startY + rowH, colWidth * 0.5, rowH);
+  doc.text(
+    gstAmount.toFixed(2),
+    margin + colWidth * 2 - 3, startY + rowH + 5.5, { align: "right" }
+  );
+
+  // Row 3 — Total (bold)
   doc.setFont("helvetica", "bold");
-  doc.text("Description", margin + 5, tableTop + 6);
-  doc.text("Amount", pageWidth - margin - 30, tableTop + 6, { align: "right" });
+  doc.rect(margin, startY + rowH * 2, colWidth * 1.5, rowH);
+  doc.text("Total", margin + colWidth * 0.75, startY + rowH * 2 + 5.5, { align: "center" });
+  doc.rect(margin + colWidth * 1.5, startY + rowH * 2, colWidth * 0.5, rowH);
+  doc.text(
+    totalAmount.toFixed(2),
+    margin + colWidth * 2 - 3, startY + rowH * 2 + 5.5, { align: "right" }
+  );
 
-  // 5. Table Body
-  doc.setFont("helvetica", "normal");
-  doc.text("Professional Services / Consulting", margin + 5, tableTop + 18);
-  doc.text(`Rs. ${cleanAmount.toFixed(2)}`, pageWidth - margin - 30, tableTop + 18, { align: "right" });
-
-  // 6. Totals
-  const footerTop = 130;
-  doc.line(margin, footerTop, pageWidth - margin, footerTop);
-
-  doc.text("Subtotal:", pageWidth - 80, footerTop + 10);
-  doc.text(`Rs. ${cleanAmount.toFixed(2)}`, pageWidth - margin - 10, footerTop + 10, { align: "right" });
-
-  doc.text("GST (18%):", pageWidth - 80, footerTop + 18);
-  doc.text(`Rs. ${gstAmount.toFixed(2)}`, pageWidth - margin - 10, footerTop + 18, { align: "right" });
-
+  // ─── 5. Bank Details Table ────────────────────────────────────────────────
+  const bankY = startY + rowH * 2 + 15;
   doc.setFontSize(12);
   doc.setFont("helvetica", "bold");
-  doc.text("Total Amount:", pageWidth - 80, footerTop + 28);
-  doc.text(`Rs. ${totalAmount.toFixed(2)}`, pageWidth - margin - 10, footerTop + 28, { align: "right" });
+  doc.text("Bank Details:-", margin, bankY);
 
-  // 7. Payment Info (QR Code)
+  const bRowH = 7;
+  const bLabels = ["ACCOUNT NAME", "ACCOUNT NUMBER", "BANK NAME", "BRANCH", "IFSC CODE"];
+  const bValues = [bankDetails.name, bankDetails.accNo, bankDetails.bank, bankDetails.branch, bankDetails.ifsc];
+
   doc.setFontSize(10);
-  doc.text("Scan to Pay via UPI", margin, footerTop + 10);
-  doc.addImage(qrDataUrl, "PNG", margin, footerTop + 15, 35, 35);
+  bLabels.forEach((label, i) => {
+    const y = bankY + 5 + i * bRowH;
+    doc.setFillColor(245, 245, 245);
+    doc.rect(margin, y, colWidth * 0.8, bRowH, "FD");
+    doc.setFont("helvetica", "normal");
+    doc.text(label, margin + 5, y + 4.5);
 
-  // 8. Bank Details
-  doc.setFontSize(9);
+    doc.setFillColor(...headerFill);
+    doc.rect(margin + colWidth * 0.8, y, colWidth * 1.2, bRowH, "FD");
+    doc.text(bValues[i], margin + colWidth * 1.4, y + 4.5, { align: "center" });
+  });
+
+  // ─── 6. QR + Signature ───────────────────────────────────────────────────
+  const footerTop = bankY + 5 + bLabels.length * bRowH + 5;
+
+  // QR code
+  doc.addImage(qrDataUrl, "PNG", margin, footerTop + 5, 35, 35);
+
+  // "For The H Enterprises" right-aligned
   doc.setFont("helvetica", "bold");
-  doc.text("Bank Details:", margin + 50, footerTop + 10);
-  doc.setFont("helvetica", "normal");
-  doc.text(`Account Name: ${bankDetails.name}`, margin + 50, footerTop + 15);
-  doc.text(`Account No: ${bankDetails.accNo}`, margin + 50, footerTop + 20);
-  doc.text(`Bank: ${bankDetails.bank} (${bankDetails.branch})`, margin + 50, footerTop + 25);
-  doc.text(`IFSC Code: ${bankDetails.ifsc}`, margin + 50, footerTop + 30);
+  doc.setFontSize(10);
+  doc.text("For The H Enterprises", pageWidth - margin, footerTop + 10, { align: "right" });
 
-  // 9. Footer
-  doc.setFontSize(8);
-  doc.setTextColor(150, 150, 150);
-  doc.text("Thank you for your business!", pageWidth / 2, 280, { align: "center" });
+  // Signature image
+  if (signatureDataUrl) {
+    doc.addImage(signatureDataUrl, "PNG", pageWidth - margin - 45, footerTop + 15, 45, 18);
+  }
+
+  doc.setFont("helvetica", "normal");
+  doc.text("Authorized Signature", pageWidth - margin, footerTop + 38, { align: "right" });
+
+  // ─── 7. Page Footer ───────────────────────────────────────────────────────
+  const pageHeight = doc.internal.pageSize.getHeight();
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.text(yourCompany.name, pageWidth / 2, pageHeight - 18, { align: "center" });
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.text(
+    `${yourCompany.address} , ${yourCompany.city}`,
+    pageWidth / 2, pageHeight - 13, { align: "center" }
+  );
+  doc.text(
+    `Mobile : ${yourCompany.mobile} ; Email : ${yourCompany.email}`,
+    pageWidth / 2, pageHeight - 8, { align: "center" }
+  );
 
   return { doc, qrDataUrl, totalAmount, cleanAmount };
 };
