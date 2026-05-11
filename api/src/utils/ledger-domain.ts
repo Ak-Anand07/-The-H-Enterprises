@@ -87,7 +87,7 @@ export const normalizeMargin = (value: unknown, fallback = '10.0%') => {
 
 export const normalizeCurrencyAmount = (value: unknown) => {
   const normalized = requireText('Amount', value)
-  const numericValue = Number.parseFloat(normalized.replace(/[^0-9.-]+/g, ''))
+  const numericValue = Number.parseFloat(normalized.replace(/[^\d.]/g, '').replace(/^\.+/, ''))
 
   if (!Number.isFinite(numericValue) || numericValue <= 0) {
     throw new BadRequest('Amount must be a positive number.')

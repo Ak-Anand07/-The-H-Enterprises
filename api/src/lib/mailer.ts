@@ -335,7 +335,7 @@ export const sendInvoiceGeneratedEmail = async ({
   const greetingName = contactName?.trim() || 'there'
   
   // Financial Calculations
-  const cleanAmount = parseFloat(amount.replace(/[^0-9.-]+/g, '') || '0')
+  const cleanAmount = parseFloat(amount.replace(/[^\d.]/g, '').replace(/^\.+/, '') || '0')
   const gstAmount = cleanAmount * 0.18
   const totalAmount = cleanAmount + gstAmount
 
