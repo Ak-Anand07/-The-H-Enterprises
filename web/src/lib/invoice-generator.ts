@@ -35,7 +35,7 @@ export const generateInvoicePDF = async (invoice: any, client: any) => {
   };
 
   const cleanAmount = parseFloat(
-    String(invoice.amount || "0").replace(/[^0-9.-]+/g, "") || "0"
+    String(invoice.amount || "0").replace(/[^\d.]/g, "").replace(/^\.+/, "") || "0"
   );
   const gstAmount = cleanAmount * 0.18;
   const totalAmount = cleanAmount + gstAmount;
