@@ -306,7 +306,7 @@ export const sendInvoiceGeneratedEmail = async ({
   return sendEmail({
     to: recipientEmail,
     subject: `Proforma Invoice Issued: ${invoiceNo} - The H Enterprises`,
-    text: `Hello ${greetingName}, your invoice ${invoiceNo} for ${totalAmount.toFixed(2)} has been issued.`,
+    text: `Hello ${greetingName}, your invoice ${invoiceNo} for Rs. ${totalAmount.toFixed(2)} has been issued.`,
     html: `
       <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333; max-width: 700px; margin: 0 auto; border: 1px solid #eee;">
         <!-- Header -->
@@ -338,15 +338,15 @@ export const sendInvoiceGeneratedEmail = async ({
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 14px;">
             <tr>
               <td style="padding: 12px; border: 1px solid #333;">Professional software management fee</td>
-              <td style="padding: 12px; border: 1px solid #333; text-align: right; width: 120px;">${cleanAmount.toFixed(2)}</td>
+              <td style="padding: 12px; border: 1px solid #333; text-align: right; width: 120px;">Rs. ${cleanAmount.toFixed(2)}</td>
             </tr>
             <tr>
               <td style="padding: 12px; border: 1px solid #333; text-align: center; background: #f9f9f9;">GST 18%</td>
-              <td style="padding: 12px; border: 1px solid #333; text-align: right;">${gstAmount.toFixed(2)}</td>
+              <td style="padding: 12px; border: 1px solid #333; text-align: right;">Rs. ${gstAmount.toFixed(2)}</td>
             </tr>
             <tr style="font-weight: bold; background: #ebf1f5;">
               <td style="padding: 12px; border: 1px solid #333; text-align: center;">Total</td>
-              <td style="padding: 12px; border: 1px solid #333; text-align: right;">${totalAmount.toFixed(2)}</td>
+              <td style="padding: 12px; border: 1px solid #333; text-align: right;">Rs. ${totalAmount.toFixed(2)}</td>
             </tr>
           </table>
 
