@@ -5,10 +5,12 @@ import { company } from './companies/companies'
 import { invoice } from './invoices/invoices'
 import { collectionReminder } from './collection-reminders/collection-reminders'
 import { healthService } from './health.service'
+import { invoiceEmailService } from './invoice-email/invoice-email.service'
 export const services = (app: Application) => {
   app.configure(user)
   app.configure(company)
   app.configure(invoice)
   app.configure(collectionReminder)
   app.use('health', healthService)
+  app.use('invoice-email', invoiceEmailService)
 }
