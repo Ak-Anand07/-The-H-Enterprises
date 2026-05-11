@@ -453,7 +453,14 @@ export default function CompaniesPage() {
                     <select
                       name="invoiceType"
                       value={formData.invoiceType}
-                      onChange={handleChange}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setFormData(prev => ({
+                          ...prev,
+                          invoiceType: val,
+                          margin: val === "Amount" ? "" : "10.0%"
+                        }));
+                      }}
                       className="crm-drawer-field w-full p-4 rounded-xl text-sm border-x-0 border-t-0 border-b-2 border-b-slate-400 focus:border-b-primary focus:ring-0 transition-all outline-none appearance-none cursor-pointer"
                     >
                       <option value="Percentage">% (Percentage)</option>
