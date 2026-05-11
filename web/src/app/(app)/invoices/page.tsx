@@ -172,155 +172,144 @@ export default function InvoicesPage() {
   const downloadInvoice = (invoice: any) => {
     const client = companies.find((c) => c.id === invoice.companyId) || {};
     
-    // Default Company Details
-    let yourCompany = {
-      name: "AI ACCOUNTING SOLUTIONS",
-      gst: "27AAACA1234A1Z5",
-      address: "123 Business Hub, Tech Park",
-      city: "San Francisco, CA 94105",
-      email: "billing@aiaccounting.com"
+    // Exact Company Details from Template
+    const yourCompany = {
+      name: "The H Enterprises",
+      gst: "33AFQPH8317G1ZD",
+      address: "No:121/2 kamala Garden, Bakthavachalam Nagar, Ankaputhure",
+      city: "Chennai -600070",
+      mobile: "9566689748",
+      email: "maxirevota@gmail.com"
     };
 
-    // Attempt to load from localStorage
-    try {
-      const saved = localStorage.getItem("crm_company_settings");
-      if (saved) {
-        yourCompany = { ...yourCompany, ...JSON.parse(saved) };
-      }
-    } catch (e) {
-      console.error("Failed to load company settings", e);
-    }
+    const bankDetails = {
+      name: "The H Enterprises",
+      accNo: "920020056431640",
+      bank: "Axis Bank",
+      branch: "Pallavaram",
+      ifsc: "UTIB0000851"
+    };
 
     import("jspdf").then(({ jsPDF }) => {
       try {
         const doc = new jsPDF();
         const pageWidth = doc.internal.pageSize.getWidth();
-        
-        // Helper to ensure we never pass undefined to doc.text
-        const safeText = (text: any) => String(text || "");
+        const margin = 20;
+        const colWidth = (pageWidth - (margin * 2)) / 2;
 
-        // 1. Decorative Header (Logo Area)
-        doc.setFillColor(248, 250, 252); // Slate 50
-        doc.rect(0, 0, pageWidth, 50, "F");
-        
-        // Stylized Logo (Vector drawn)
-        doc.setFillColor(0, 74, 198); // Primary Blue
-        doc.roundedRect(20, 15, 12, 12, 2, 2, "F");
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(8);
+        // 1. Logo Placeholder (Branding)
+        doc.setFontSize(22);
+        doc.setTextColor(40);
         doc.setFont("helvetica", "bold");
-        doc.text("AI", 26, 23, { align: "center" });
-        
-        doc.setTextColor(15, 23, 42); // Slate 900
+        doc.text("THE H ENTERPRISES", pageWidth / 2, 25, { align: "center" });
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
+        doc.text("THE COMPLETE SOLUTION", pageWidth / 2, 30, { align: "center" });
+
+        // 2. Title & GST
         doc.setFontSize(16);
-        doc.text(yourCompany.name, 38, 24);
-        
-        doc.setFontSize(24);
         doc.setFont("helvetica", "bold");
-        doc.text("INVOICE", 190, 26, { align: "right" });
-
-        // 2. Sender & Receiver Columns
-        doc.setFontSize(9);
-        doc.setFont("helvetica", "bold");
-        doc.setTextColor(100);
-        doc.text("FROM:", 20, 60);
-        doc.text("BILL TO:", 110, 60);
+        doc.text("Proforma Invoice", pageWidth / 2, 45, { align: "center" });
+        doc.setLineWidth(0.5);
+        doc.line((pageWidth / 2) - 25, 47, (pageWidth / 2) + 25, 47);
         
         doc.setFontSize(10);
-        doc.setTextColor(0);
-        // Sender Details
-        doc.text(safeText(yourCompany.name), 20, 66);
-        doc.setFont("helvetica", "normal");
-        doc.text(safeText(yourCompany.address), 20, 71);
-        doc.text(safeText(yourCompany.city), 20, 76);
-        doc.text(`GSTIN: ${safeText(yourCompany.gst)}`, 20, 81);
-        
-        // Receiver Details
-        doc.setFont("helvetica", "bold");
-        doc.text(safeText(invoice.companyName), 110, 66);
-        doc.setFont("helvetica", "normal");
-        const clientAddress = client.address || "Address not specified";
-        const splitAddress = doc.splitTextToSize(clientAddress, 80);
-        doc.text(splitAddress, 110, 71);
-        doc.text(safeText(client.city), 110, 81);
-        doc.text(`GSTIN: ${safeText(client.gstNumber || "N/A")}`, 110, 86);
+        doc.text(`GSTNo: ${yourCompany.gst}`, 190, 45, { align: "right" });
 
-        // 3. Invoice Metadata
-        doc.setFillColor(241, 245, 249); // Slate 100
-        doc.rect(20, 95, 170, 15, "F");
+        // 3. Header Tables (Client & Invoice Info)
+        doc.setDrawColor(0);
+        doc.setFillColor(235, 241, 245); // Light Gray-Blue
         
-        doc.setFontSize(9);
-        doc.setFont("helvetica", "bold");
-        doc.text("INVOICE NO", 25, 101);
-        doc.text("ISSUE DATE", 75, 101);
-        doc.text("DUE DATE", 125, 101);
-        doc.text("TOTAL DUE", 165, 101);
-        
+        // Left Box (Client)
+        doc.rect(margin, 55, colWidth, 25, "FD");
+        doc.setFontSize(11);
+        doc.text(String(invoice.companyName).toUpperCase(), margin + (colWidth / 2), 62, { align: "center" });
         doc.setFont("helvetica", "normal");
-        doc.text(safeText(invoice.invoiceNo), 25, 106);
-        doc.text(safeText(invoice.date), 75, 106);
-        doc.text(safeText(invoice.dueDate || "N/A"), 125, 106);
-        doc.text(safeText(invoice.amount), 165, 106);
-
-        // 4. Main Table
-        doc.setDrawColor(226, 232, 240); // Slate 200
-        doc.line(20, 125, 190, 125);
-        
-        doc.setFont("helvetica", "bold");
-        doc.text("Description", 25, 132);
-        doc.text("Quantity", 110, 132);
-        doc.text("Rate", 140, 132);
-        doc.text("Amount", 170, 132, { align: "right" });
-        
-        doc.line(20, 136, 190, 136);
-        
-        doc.setFont("helvetica", "normal");
-        doc.text(`Professional Services (${safeText(invoice.invoiceNo)})`, 25, 145);
-        doc.text("1.00", 110, 145);
-        doc.text(safeText(invoice.amount), 140, 145);
-        doc.text(safeText(invoice.amount), 170, 145, { align: "right" });
-        
-        // 5. Financial Summary
-        const summaryY = 170;
-        doc.line(120, summaryY, 190, summaryY);
-        
-        doc.setFont("helvetica", "bold");
-        doc.text("Subtotal:", 125, summaryY + 8);
-        doc.setFont("helvetica", "normal");
-        doc.text(safeText(invoice.amount), 170, summaryY + 8, { align: "right" });
-        
-        doc.text("Tax (GST 0%):", 125, summaryY + 14);
-        doc.text("₹ 0.00", 170, summaryY + 14, { align: "right" });
-        
-        doc.setFillColor(0, 74, 198);
-        doc.rect(120, summaryY + 20, 70, 10, "F");
-        doc.setTextColor(255);
-        doc.setFont("helvetica", "bold");
-        doc.text("TOTAL AMOUNT:", 125, summaryY + 26.5);
-        doc.text(safeText(invoice.amount), 185, summaryY + 26.5, { align: "right" });
-
-        // 6. Signature & Footer
-        doc.setTextColor(15, 23, 42);
         doc.setFontSize(10);
-        doc.text("Authorized Signature", 160, 255, { align: "center" });
-        doc.line(140, 250, 180, 250);
-        
-        // Status Watermark
-        if (invoice.status === "Cleared") {
-          doc.setTextColor(220, 252, 231); // Green 100
-          doc.setFontSize(80);
-          doc.text("PAID", 105, 180, { align: "center", angle: 35 });
-        }
+        doc.text(String(client.city || "Chennai"), margin + (colWidth / 2), 68, { align: "center" });
+        doc.setFont("helvetica", "bold");
+        doc.text(String(client.gstNumber || "N/A"), margin + (colWidth / 2), 74, { align: "center" });
 
-        doc.setFontSize(8);
-        doc.setTextColor(148, 163, 184);
-        doc.text("This is a computer generated document. No signature required for validation.", 105, 280, { align: "center" });
-        doc.text(`Support: ${yourCompany.email} | Powered by AI Accounting`, 105, 285, { align: "center" });
+        // Right Box (Invoice Meta)
+        doc.rect(margin + colWidth, 55, colWidth, 25, "FD");
+        doc.setFont("helvetica", "normal");
+        doc.text(`Invoice No   : ${invoice.invoiceNo}`, margin + colWidth + 5, 62);
+        doc.text(`Invoice Date : ${invoice.date}`, margin + colWidth + 5, 68);
+        doc.text(`Due date      : ${invoice.dueDate || "N/A"}`, margin + colWidth + 5, 74);
+
+        // 4. Main Item Table
+        const startY = 80;
+        const rowH = 8;
+        const cleanAmount = parseFloat(String(invoice.amount).replace(/[^0-9.-]+/g, "") || "0");
+        const gstAmount = cleanAmount * 0.18;
+        const totalAmount = cleanAmount + gstAmount;
+
+        // Rows
+        doc.setFont("helvetica", "normal");
+        doc.rect(margin, startY, colWidth * 1.5, rowH);
+        doc.text("Professional software management fee", margin + 5, startY + 5.5);
+        doc.rect(margin + (colWidth * 1.5), startY, colWidth * 0.5, rowH);
+        doc.text(cleanAmount.toFixed(2), margin + (colWidth * 2) - 5, startY + 5.5, { align: "right" });
+
+        doc.rect(margin, startY + rowH, colWidth * 1.5, rowH);
+        doc.text("GST 18%", margin + (colWidth * 0.75), startY + rowH + 5.5, { align: "center" });
+        doc.rect(margin + (colWidth * 1.5), startY + rowH, colWidth * 0.5, rowH);
+        doc.text(gstAmount.toFixed(2), margin + (colWidth * 2) - 5, startY + rowH + 5.5, { align: "right" });
+
+        doc.setFont("helvetica", "bold");
+        doc.rect(margin, startY + (rowH * 2), colWidth * 1.5, rowH);
+        doc.text("Total", margin + (colWidth * 0.75), startY + (rowH * 2) + 5.5, { align: "center" });
+        doc.rect(margin + (colWidth * 1.5), startY + (rowH * 2), colWidth * 0.5, rowH);
+        doc.text(totalAmount.toFixed(2), margin + (colWidth * 2) - 5, startY + (rowH * 2) + 5.5, { align: "right" });
+
+        // 5. Bank Details Table
+        const bankY = 115;
+        doc.setFontSize(12);
+        doc.text("Bank Details:-", margin, bankY);
         
+        const bRowH = 7;
+        const bLabels = ["ACCOUNT NAME", "ACCOUNT NUMBER", "BANK NAME", "BRANCH", "IFSC CODE"];
+        const bValues = [bankDetails.name, bankDetails.accNo, bankDetails.bank, bankDetails.branch, bankDetails.ifsc];
+
+        doc.setFontSize(10);
+        bLabels.forEach((label, i) => {
+          const y = bankY + 5 + (i * bRowH);
+          doc.setFillColor(245);
+          doc.rect(margin, y, colWidth * 0.8, bRowH, "FD");
+          doc.setFont("helvetica", "normal");
+          doc.text(label, margin + 5, y + 4.5);
+          
+          doc.setFillColor(235, 241, 245);
+          doc.rect(margin + (colWidth * 0.8), y, colWidth * 1.2, bRowH, "FD");
+          doc.text(bValues[i], margin + (colWidth * 1.4), y + 4.5, { align: "center" });
+        });
+
+        // 6. Signatures & QR
+        const footerTop = 170;
+        doc.setFont("helvetica", "bold");
+        doc.text("For The H Enterprises", 190, footerTop + 10, { align: "right" });
+        
+        // QR Code Placeholder (Rectangle)
+        doc.rect(margin, footerTop, 40, 40);
+        doc.setFontSize(7);
+        doc.text("Scan to pay", margin + 20, footerTop + 38, { align: "center" });
+
+        doc.setFontSize(10);
+        doc.text("Authorized Signature", 190, footerTop + 45, { align: "right" });
+
+        // 7. Page Footer
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        doc.text(yourCompany.name, pageWidth / 2, 265, { align: "center" });
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9);
+        doc.text(yourCompany.address + " , " + yourCompany.city, pageWidth / 2, 271, { align: "center" });
+        doc.text(`Mobile : ${yourCompany.mobile} ; Email : ${yourCompany.email}`, pageWidth / 2, 276, { align: "center" });
+
         doc.save(`Invoice_${invoice.invoiceNo}.pdf`);
       } catch (err) {
         console.error("PDF generation error:", err);
-        alert("Could not generate PDF. Please check if all fields are filled.");
+        alert("Could not generate PDF.");
       }
     });
   };

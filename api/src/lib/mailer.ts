@@ -289,58 +289,115 @@ export const sendInvoiceGeneratedEmail = async ({
   dueDate
 }: InvoiceNotificationOptions) => {
   const greetingName = contactName?.trim() || 'there'
+  
+  // Financial Calculations
+  const cleanAmount = parseFloat(amount.replace(/[^0-9.-]+/g, '') || '0')
+  const gstAmount = cleanAmount * 0.18
+  const totalAmount = cleanAmount + gstAmount
+
+  const bankDetails = {
+    name: 'The H Enterprises',
+    accNo: '920020056431640',
+    bank: 'Axis Bank',
+    branch: 'Pallavaram',
+    ifsc: 'UTIB0000851'
+  }
 
   return sendEmail({
     to: recipientEmail,
-    subject: `New Invoice Issued: ${invoiceNo} for ${companyName}`,
-    text: [
-      `Hello ${greetingName},`,
-      '',
-      `A new invoice ${invoiceNo} has been generated for ${companyName}.`,
-      '',
-      `Invoice Details:`,
-      `- Invoice Number: ${invoiceNo}`,
-      `- Amount: ${amount}`,
-      `- Date: ${date}`,
-      `- Due Date: ${dueDate}`,
-      '',
-      'Please find the invoice details in your portal or contact our accounts team for a PDF copy.',
-      '',
-      'Regards,',
-      'The H Enterprises'
-    ].join('\n'),
+    subject: `Proforma Invoice Issued: ${invoiceNo} - The H Enterprises`,
+    text: `Hello ${greetingName}, your invoice ${invoiceNo} for ${totalAmount.toFixed(2)} has been issued.`,
     html: `
-      <div style="font-family: Arial, sans-serif; color: #1f2937; line-height: 1.6; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 8px; padding: 24px;">
-        <h2 style="color: #004ac6; margin-top: 0;">Invoice Issued</h2>
-        <p>Hello ${escapeHtml(greetingName)},</p>
-        <p>
-          A new invoice has been generated for <strong>${escapeHtml(companyName)}</strong>.
-        </p>
-        <div style="background: #f8fafc; padding: 20px; border-radius: 6px; margin: 20px 0;">
-          <table style="width: 100%; border-collapse: collapse;">
+      <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333; max-width: 700px; margin: 0 auto; border: 1px solid #eee;">
+        <!-- Header -->
+        <div style="text-align: center; padding: 30px 20px; background: #fff;">
+          <h1 style="margin: 0; font-size: 28px; letter-spacing: 2px; color: #222;">THE H ENTERPRISES</h1>
+          <p style="margin: 5px 0 0; font-size: 12px; color: #666; letter-spacing: 1px;">THE COMPLETE SOLUTION</p>
+        </div>
+
+        <div style="padding: 0 40px 40px;">
+          <h2 style="text-align: center; font-size: 20px; border-bottom: 2px solid #333; display: table; margin: 0 auto 30px; padding-bottom: 5px;">Proforma Invoice</h2>
+          
+          <!-- Top Info Grid -->
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
             <tr>
-              <td style="padding: 4px 0; color: #64748b;">Invoice Number:</td>
-              <td style="padding: 4px 0; font-weight: bold; text-align: right;">${escapeHtml(invoiceNo)}</td>
+              <td style="width: 50%; padding: 15px; background: #ebf1f5; border: 1px solid #ccc; text-align: center;">
+                <strong style="display: block; font-size: 14px;">${escapeHtml(companyName).toUpperCase()}</strong>
+                <span style="font-size: 12px; color: #555;">Chennai</span>
+              </td>
+              <td style="width: 50%; padding: 15px; background: #ebf1f5; border: 1px solid #ccc; font-size: 13px;">
+                <table style="width: 100%;">
+                  <tr><td>Invoice No</td><td>: ${escapeHtml(invoiceNo)}</td></tr>
+                  <tr><td>Invoice Date</td><td>: ${escapeHtml(date)}</td></tr>
+                  <tr><td>Due date</td><td>: ${escapeHtml(dueDate)}</td></tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+
+          <!-- Items Table -->
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 14px;">
+            <tr>
+              <td style="padding: 12px; border: 1px solid #333;">Professional software management fee</td>
+              <td style="padding: 12px; border: 1px solid #333; text-align: right; width: 120px;">${cleanAmount.toFixed(2)}</td>
             </tr>
             <tr>
-              <td style="padding: 4px 0; color: #64748b;">Amount:</td>
-              <td style="padding: 4px 0; font-weight: bold; text-align: right; color: #004ac6;">${escapeHtml(amount)}</td>
+              <td style="padding: 12px; border: 1px solid #333; text-align: center; background: #f9f9f9;">GST 18%</td>
+              <td style="padding: 12px; border: 1px solid #333; text-align: right;">${gstAmount.toFixed(2)}</td>
+            </tr>
+            <tr style="font-weight: bold; background: #ebf1f5;">
+              <td style="padding: 12px; border: 1px solid #333; text-align: center;">Total</td>
+              <td style="padding: 12px; border: 1px solid #333; text-align: right;">${totalAmount.toFixed(2)}</td>
+            </tr>
+          </table>
+
+          <!-- Bank Details -->
+          <h3 style="font-size: 15px; margin-bottom: 10px;">Bank Details:-</h3>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 40px; font-size: 13px;">
+            <tr>
+              <td style="padding: 8px 12px; background: #f5f5f5; border: 1px solid #ccc; width: 35%;">ACCOUNT NAME</td>
+              <td style="padding: 8px 12px; background: #ebf1f5; border: 1px solid #ccc; text-align: center;">${bankDetails.name}</td>
             </tr>
             <tr>
-              <td style="padding: 4px 0; color: #64748b;">Issue Date:</td>
-              <td style="padding: 4px 0; text-align: right;">${escapeHtml(date)}</td>
+              <td style="padding: 8px 12px; background: #f5f5f5; border: 1px solid #ccc;">ACCOUNT NUMBER</td>
+              <td style="padding: 8px 12px; background: #ebf1f5; border: 1px solid #ccc; text-align: center;">${bankDetails.accNo}</td>
             </tr>
             <tr>
-              <td style="padding: 4px 0; color: #64748b;">Due Date:</td>
-              <td style="padding: 4px 0; text-align: right;">${escapeHtml(dueDate)}</td>
+              <td style="padding: 8px 12px; background: #f5f5f5; border: 1px solid #ccc;">BANK NAME</td>
+              <td style="padding: 8px 12px; background: #ebf1f5; border: 1px solid #ccc; text-align: center;">${bankDetails.bank}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 12px; background: #f5f5f5; border: 1px solid #ccc;">BRANCH</td>
+              <td style="padding: 8px 12px; background: #ebf1f5; border: 1px solid #ccc; text-align: center;">${bankDetails.branch}</td>
+            </tr>
+            <tr>
+              <td style="padding: 8px 12px; background: #f5f5f5; border: 1px solid #ccc;">IFSC CODE</td>
+              <td style="padding: 8px 12px; background: #ebf1f5; border: 1px solid #ccc; text-align: center;">${bankDetails.ifsc}</td>
+            </tr>
+          </table>
+
+          <!-- Footer Area -->
+          <table style="width: 100%; margin-top: 40px;">
+            <tr>
+              <td style="width: 50%; vertical-align: bottom;">
+                <div style="width: 100px; height: 100px; border: 1px solid #ccc; text-align: center; font-size: 10px; color: #999;">
+                  <br/><br/>UPI QR CODE<br/>Placeholder
+                </div>
+              </td>
+              <td style="width: 50%; text-align: right; vertical-align: bottom;">
+                <p style="font-weight: bold; margin-bottom: 50px;">For The H Enterprises</p>
+                <p style="font-size: 12px; margin: 0;">Authorized Signature</p>
+              </td>
             </tr>
           </table>
         </div>
-        <p>Please review the details and proceed with the payment as per the terms.</p>
-        <p style="margin-top: 24px; border-top: 1px solid #e5e7eb; padding-top: 16px; font-size: 14px; color: #64748b;">
-          Regards,<br/>
-          <strong>The H Enterprises</strong>
-        </p>
+
+        <!-- System Footer -->
+        <div style="background: #fff; padding: 20px; text-align: center; border-top: 1px solid #eee; font-size: 11px; color: #444;">
+          <strong style="display: block; font-size: 13px; margin-bottom: 5px;">The H Enterprises</strong>
+          No:121/2 kamala Garden, Bakthavachalam Nagar, Ankaputhure, Chennai -600070<br/>
+          Mobile : 9566689748 ; Email : maxirevota@gmail.com
+        </div>
       </div>
     `
   })
