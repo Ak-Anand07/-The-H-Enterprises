@@ -358,7 +358,7 @@ export const sendInvoiceGeneratedEmail = async ({
 
   if (logoBase64) {
     // Strip data URI prefix if present
-    const raw = logoBase64.replace(/^data:image\/[a-z]+;base64,/, '')
+    const raw = logoBase64.replace(/^data:.*?;base64,/, '')
     attachments.push({
       filename: 'logo.png',
       content: raw,
@@ -369,7 +369,7 @@ export const sendInvoiceGeneratedEmail = async ({
   }
 
   if (qrBase64) {
-    const raw = qrBase64.replace(/^data:image\/[a-z]+;base64,/, '')
+    const raw = qrBase64.replace(/^data:.*?;base64,/, '')
     attachments.push({
       filename: 'upi-qr.png',
       content: raw,
@@ -380,7 +380,7 @@ export const sendInvoiceGeneratedEmail = async ({
   }
 
   if (signatureBase64) {
-    const raw = signatureBase64.replace(/^data:image\/[a-z]+;base64,/, '')
+    const raw = signatureBase64.replace(/^data:.*?;base64,/, '')
     attachments.push({
       filename: 'signature.png',
       content: raw,
@@ -391,7 +391,7 @@ export const sendInvoiceGeneratedEmail = async ({
   }
 
   if (pdfBase64) {
-    const raw = pdfBase64.replace(/^data:application\/pdf;base64,/, '')
+    const raw = pdfBase64.replace(/^data:.*?;base64,/, '')
     attachments.push({
       filename: `Invoice-${invoiceNo}.pdf`,
       content: raw,

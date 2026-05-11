@@ -198,5 +198,5 @@ export const generateInvoicePDF = async (invoice: any, client: any) => {
     pageWidth / 2, pageHeight - 8, { align: "center" }
   );
 
-  return { doc, qrDataUrl: qrDataUrl ?? "", totalAmount, cleanAmount };
+  return { doc, qrDataUrl: qrDataUrl ?? "", logoDataUrl: logoDataUrl ?? "", signatureDataUrl: signatureDataUrl ?? "", totalAmount, cleanAmount };
 };

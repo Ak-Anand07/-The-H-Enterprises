@@ -196,11 +196,13 @@ export default function InvoicesPage() {
 
     setSendingEmailId(invoice.id);
     try {
-      const { pdfBase64, qrBase64, totalAmount, cleanAmount } = await (async () => {
-        const { doc, qrDataUrl, totalAmount, cleanAmount } = await generateInvoicePDF(invoice, client);
+      const { pdfBase64, qrBase64, logoBase64, signatureBase64, totalAmount, cleanAmount } = await (async () => {
+        const { doc, qrDataUrl, logoDataUrl, signatureDataUrl, totalAmount, cleanAmount } = await generateInvoicePDF(invoice, client);
         return {
           pdfBase64: doc.output("datauristring"),
           qrBase64: qrDataUrl,
+          logoBase64: logoDataUrl,
+          signatureBase64: signatureDataUrl,
           totalAmount,
           cleanAmount,
         };
@@ -217,6 +219,8 @@ export default function InvoicesPage() {
         dueDate: invoice.dueDate,
         pdfBase64,
         qrBase64,
+        logoBase64,
+        signatureBase64,
       });
 
       if (result?.success) {
