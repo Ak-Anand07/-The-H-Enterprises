@@ -356,40 +356,6 @@ export const sendInvoiceGeneratedEmail = async ({
     disposition?: 'inline' | 'attachment'
   }> = []
 
-  if (logoBase64) {
-    // Strip data URI prefix if present
-    const raw = logoBase64.replace(/^data:.*?;base64,/, '')
-    attachments.push({
-      filename: 'logo.png',
-      content: raw,
-      contentType: 'image/png',
-      cid: 'invoice-logo',
-      disposition: 'inline'
-    })
-  }
-
-  if (qrBase64) {
-    const raw = qrBase64.replace(/^data:.*?;base64,/, '')
-    attachments.push({
-      filename: 'upi-qr.png',
-      content: raw,
-      contentType: 'image/png',
-      cid: 'invoice-qr',
-      disposition: 'inline'
-    })
-  }
-
-  if (signatureBase64) {
-    const raw = signatureBase64.replace(/^data:.*?;base64,/, '')
-    attachments.push({
-      filename: 'signature.png',
-      content: raw,
-      contentType: 'image/png',
-      cid: 'invoice-signature',
-      disposition: 'inline'
-    })
-  }
-
   if (pdfBase64) {
     const raw = pdfBase64.replace(/^data:.*?;base64,/, '')
     attachments.push({
@@ -399,11 +365,6 @@ export const sendInvoiceGeneratedEmail = async ({
       disposition: 'attachment'
     })
   }
-
-  // Use CID refs when images are provided; fall back to empty placeholder
-  const logoSrc    = logoBase64      ? 'cid:invoice-logo'      : ''
-  const qrSrc      = qrBase64        ? 'cid:invoice-qr'        : ''
-  const signSrc    = signatureBase64 ? 'cid:invoice-signature' : ''
 
   return sendEmail({
     to: recipientEmail,
@@ -415,7 +376,7 @@ export const sendInvoiceGeneratedEmail = async ({
       <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333; max-width: 700px; margin: 0 auto; border: 1px solid #eee;">
         <!-- Header -->
         <div style="text-align: center; padding: 10px 20px; background: #fff;">
-          ${logoSrc ? `<img src="${logoSrc}" width="120" alt="Logo" style="display: block; margin: 0 auto; max-width: 150px;" />` : ''}
+          <h1 style="color: #333; margin: 0;">The H Enterprises</h1>
         </div>
 
         <div style="padding: 0 40px 40px;">
@@ -483,12 +444,10 @@ export const sendInvoiceGeneratedEmail = async ({
           <table style="width: 100%; margin-top: 40px;">
             <tr>
               <td style="width: 50%; vertical-align: bottom;">
-                ${qrSrc ? `<img src="${qrSrc}" width="100" height="100" alt="UPI QR" />` : ''}
-                <p style="font-size: 10px; color: #666; margin: 5px 0 0;">Scan to pay</p>
+                <p style="font-size: 10px; color: #666; margin: 5px 0 0;">Please find the Proforma Invoice attached as a PDF document.</p>
               </td>
               <td style="width: 50%; text-align: right; vertical-align: bottom;">
                 <p style="font-weight: bold; margin-bottom: 5px;">For The H Enterprises</p>
-                ${signSrc ? `<img src="${signSrc}" width="100" alt="Signature" style="display: block; margin-left: auto;" />` : ''}
                 <p style="font-size: 12px; margin: 5px 0 0;">Authorized Signature</p>
               </td>
             </tr>
