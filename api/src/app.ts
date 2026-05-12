@@ -35,7 +35,7 @@ app.use(
 app.use(serveStatic(app.get('public')))
 app.use(errorHandler())
 app.use(parseAuthentication())
-app.use(bodyParser())
+app.use(bodyParser({ jsonLimit: '50mb', formLimit: '50mb', textLimit: '50mb' }))
 
 // Configure services and transports
 app.configure(rest())
