@@ -148,7 +148,13 @@ export default function InvoicesPage() {
       if (isEditMode && editingInvoiceId !== null) {
         await app.service("invoices").patch(editingInvoiceId, payload);
       } else {
-        await app.service("invoices").create(payload);
+        const savedInvoice = await app.service("invoices").create(payload);
+        
+        // Auto-send email with PDF attachments only for newly created invoices
+        // We run this without awaiting so the UI doesn't hang while generating PDF
+        setTimeout(() => {
+          sendInvoiceEmail(savedInvoice).catch(console.error);
+        }, 500);
       }
       closeDrawer();
       loadData();

@@ -60,7 +60,7 @@ export const invoice = (app: Application) => {
     },
     after: {
       all: [],
-      create: [notifyCompanyOfInvoice]
+      create: []
     },
     error: {
       all: []
